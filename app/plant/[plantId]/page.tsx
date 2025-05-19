@@ -40,7 +40,7 @@ export default function PlantPage() {
 
         const res = await fetch(`/api/plant-details?id=${plantId}`);
 
-        if (res.status === 404 || res.status === 429) {
+        if ((res.status === 404 || res.status === 429) && plantId !== "9999") {
           router.push("/404");
           return;
         }
