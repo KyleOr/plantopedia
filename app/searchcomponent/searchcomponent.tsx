@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./searchcomponent.module.css";
 
@@ -20,6 +20,33 @@ const dummySuggestions = [
 export default function SearchComponent() {
   const [query, setQuery] = useState("");
   const [filtered, setFiltered] = useState<string[]>([]);
+  const [placeholder, setPlaceholder] = useState("");
+  const [suggestionIndex, setSuggestionIndex] = useState(0);
+
+  useEffect(() => {
+    let currentCharIndex = 0;
+    let interval: NodeJS.Timeout;
+
+    const typeNextSuggestion = () => {
+      const suggestion = `Search for ${dummySuggestions[suggestionIndex]}...`;
+      setPlaceholder("");
+
+      interval = setInterval(() => {
+        currentCharIndex++;
+        setPlaceholder(suggestion.slice(0, currentCharIndex));
+
+        if (currentCharIndex >= suggestion.length) {
+          clearInterval(interval);
+          setTimeout(() => {
+            setSuggestionIndex((prev) => (prev + 1) % dummySuggestions.length);
+          }, 3000); // wait before rotating to next
+        }
+      }, 80);
+    };
+
+    typeNextSuggestion();
+    return () => clearInterval(interval);
+  }, [suggestionIndex]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value;
@@ -43,7 +70,7 @@ export default function SearchComponent() {
         value={query}
         onChange={handleChange}
         className={styles.searchInput}
-        placeholder="Search for a plant..."
+        placeholder={placeholder}
       />
 
       <AnimatePresence>
