@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation"; // ✅ import useRouter
 import styles from "../plantpage.module.css";
 
 type PlantDetail = {
@@ -19,6 +19,7 @@ type PlantDetail = {
 
 export default function PlantPage() {
   const params = useParams();
+  const router = useRouter();
   const plantIdRaw = params.plantId;
   const plantId = Array.isArray(plantIdRaw) ? plantIdRaw[0] : plantIdRaw;
 
@@ -28,8 +29,7 @@ export default function PlantPage() {
 
   useEffect(() => {
     if (!plantId || typeof plantId !== "string") {
-      setError("No valid plant ID provided");
-      setLoading(false);
+      router.push("/404"); // redirect if invalid ID
       return;
     }
 
@@ -40,6 +40,11 @@ export default function PlantPage() {
 
         const res = await fetch(`/api/plant-details?id=${plantId}`);
 
+        if (res.status === 404 || res.status === 429) {
+          router.push("/404");
+          return;
+        }
+
         if (!res.ok) {
           throw new Error(`Failed to fetch plant data: ${res.status}`);
         }
@@ -47,8 +52,7 @@ export default function PlantPage() {
         const data = await res.json();
 
         if (!data) {
-          setError("Plant not found");
-          setPlant(null);
+          router.push("/404"); // fallback if data is unexpectedly null
           return;
         }
 
@@ -62,7 +66,7 @@ export default function PlantPage() {
     }
 
     fetchPlant();
-  }, [plantId]);
+  }, [plantId, router]);
 
   if (loading) return <p>Loading plant details...</p>;
   if (error) return <p>Error: {error}</p>;
