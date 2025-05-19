@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: plantopedia-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: plantopedia
+  template:
+    metadata:
+      labels:
+        app: plantopedia
+    spec:
+      containers:
+        - name: plantopedia
+          image: s223399201/plantopedia-app:latest
+          ports:
+            - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: plantopedia-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: plantopedia
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
