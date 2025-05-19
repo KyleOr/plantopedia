@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation"; // ✅ import useRouter
+import { useParams, useRouter } from "next/navigation";
 import styles from "../plantpage.module.css";
 
 type PlantDetail = {
@@ -57,8 +57,12 @@ export default function PlantPage() {
         }
 
         setPlant(data);
-      } catch (err: any) {
-        setError(err.message || "Unknown error");
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("Unknown error");
+        }
         setPlant(null);
       } finally {
         setLoading(false);

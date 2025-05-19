@@ -131,7 +131,7 @@ export default function SearchComponent() {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
           >
-            {filtered.map((plant, idx) => (
+            {filtered.map((plant) => (
               <li
                 key={plant.id}
                 onClick={() => handleSelect(plant)}
