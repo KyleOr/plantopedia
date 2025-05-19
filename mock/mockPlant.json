@@ -1,0 +1,8 @@
+{
+  "common_name": "Basil",
+  "scientific_name": "Ocimum basilicum",
+  "description": "Basil is a fragrant herb commonly used in cooking, especially in Italian and Southeast Asian cuisine. It's easy to grow and thrives in warm, sunny environments. Its fresh leaves can be used in sauces, salads, and even drinks.",
+  "default_image": {
+    "original_url": "/basil.jpg"
+  }
+}

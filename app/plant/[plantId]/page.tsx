@@ -1,0 +1,91 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import styles from "../plantpage.module.css";
+
+type PlantDetail = {
+  common_name?: string;
+  scientific_name?: string;
+  description?: string;
+  default_image?: {
+    original_url?: string;
+    regular_url?: string;
+    medium_url?: string;
+    small_url?: string;
+    thumbnail?: string;
+  };
+};
+
+export default function PlantPage() {
+  const params = useParams();
+  const plantIdRaw = params.plantId;
+  const plantId = Array.isArray(plantIdRaw) ? plantIdRaw[0] : plantIdRaw;
+
+  const [plant, setPlant] = useState<PlantDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!plantId || typeof plantId !== "string") {
+      setError("No valid plant ID provided");
+      setLoading(false);
+      return;
+    }
+
+    async function fetchPlant() {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const res = await fetch(`/api/plant-details?id=${plantId}`);
+
+        if (!res.ok) {
+          throw new Error(`Failed to fetch plant data: ${res.status}`);
+        }
+
+        const data = await res.json();
+
+        if (!data) {
+          setError("Plant not found");
+          setPlant(null);
+          return;
+        }
+
+        setPlant(data);
+      } catch (err: any) {
+        setError(err.message || "Unknown error");
+        setPlant(null);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchPlant();
+  }, [plantId]);
+
+  if (loading) return <p>Loading plant details...</p>;
+  if (error) return <p>Error: {error}</p>;
+  if (!plant) return <p>No data found.</p>;
+
+  return (
+    <div className={styles.container}>
+      <h1 className={styles.heading}>
+        {plant.common_name || plant.scientific_name}
+      </h1>
+      <p className={styles.subheading}>
+        <i>{plant.scientific_name}</i>
+      </p>
+      {plant.default_image?.original_url && (
+        <img
+          src={plant.default_image.original_url}
+          alt={plant.common_name || plant.scientific_name}
+          className={styles.image}
+        />
+      )}
+      {plant.description && (
+        <p className={styles.description}>{plant.description}</p>
+      )}
+    </div>
+  );
+}
